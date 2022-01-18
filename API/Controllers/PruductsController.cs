@@ -1,6 +1,7 @@
 using Infrastructure.Data;
 using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Core.Interfaces;
 
 namespace API.Controllers;
 
@@ -14,24 +15,23 @@ public class ProductsController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
-    private readonly StoreContext _context;
+    private readonly IProductRepository _productRepository;    
 
-    public ProductsController(ILogger<WeatherForecastController> logger, StoreContext context)
+    public ProductsController(ILogger<WeatherForecastController> logger, IProductRepository productRepository)
     {
         _logger = logger;
-        _context = context;
+        _productRepository = productRepository;
     }
 
     [HttpGet(Name = "GetProducts")]
     public ActionResult<List<Product>> Get()
     {
-        return Ok(_context.Products.ToArray());
-        // return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        // {
-        //     Date = DateTime.Now.AddDays(index),
-        //     TemperatureC = Random.Shared.Next(-20, 55),
-        //     Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        // })
-        // .ToArray();
+        return Ok(_productRepository.GetProductsAsync());
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Product>> GetProduct(int id)
+    {
+        return await _productRepository.GetProductByIdAsync(id);
     }
 }
